@@ -1,0 +1,18 @@
+# ── Kotlin / Gradle (fhirscope/) ─────────────────────────────────────────────
+fhirscope/build/
+fhirscope/.gradle/
+fhirscope/.kotlin/
+*.class
+*.jar
+
+# ── Next.js (fhirscope-web/) ─────────────────────────────────────────────────
+fhirscope-web/.next/
+fhirscope-web/node_modules/
+fhirscope-web/out/
+
+# ── OS / IDE ──────────────────────────────────────────────────────────────────
+.DS_Store
+.idea/
+.vscode/
+*.iml
+Thumbs.db

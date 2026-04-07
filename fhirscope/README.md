@@ -9,19 +9,19 @@ FHIRScope connects to the public [HAPI FHIR sandbox](https://hapi.fhir.org/) —
 ## What It Does
 
 ```
-Enter patient name:
-> John
+Enter patient name (or 'quit' to exit):
+> Ved
 
 Found 2 patient(s):
-  1. John Doe    (1990-01-01)  [male]
-  2. John Smith  (1985-05-12)  [male]
+  1. Ved Prakash  (2026-02-03)  [male]
+  2. Vedat Da?da? Tabian  (1988-09-13)  [male]
 
 Enter selection (1-2):
 > 1
 
-Medications for John Doe:
-  - Atorvastatin 20 MG Oral Tablet  [active]      (2023-10-01)
-  - Lisinopril 10 MG Oral Tablet    [completed]   (2023-08-15)
+Fetching medications for Ved Prakash...
+Medications for Ved Prakash:
+  - yty  [cancelled]  (prescribed: Feb 12, 2026)
 ```
 
 ---
@@ -45,7 +45,8 @@ fhirscope/
 │   └── util/
 │       └── JsonParser.kt              # Deserializes raw FHIR Bundle JSON into model objects
 ├── build.gradle.kts
-└── settings.gradle.kts
+├── settings.gradle.kts
+└── FUTURE_IMPROVEMENTS.md             # Planned but unimplemented features
 ```
 
 ---
@@ -82,27 +83,40 @@ The app follows a layered design with a single responsibility per layer:
 
 ---
 
-## Running the App
+## Known Limitations
 
-```bash
-./gradlew run
-```
+### Patient Name Search
+> **Important:** The HAPI FHIR sandbox's `?name=` parameter does not reliably match across both given and family name when provided together. Searching `"Ved Prakash"` may return no results, while searching `"Ved"` will find him.
+>
+> **Workaround:** Search by first name or last name only, then select the correct patient from the results list.
+
+### Medication Status
+All medication statuses are shown (`active`, `cancelled`, `completed`, etc.). The HAPI FHIR public sandbox contains a mix of real test data and synthetic records — some patients may have no medications or only cancelled ones.
 
 ---
 
-## Current Status
+## Running the App
 
-This project is a **starter scaffold**. The structure, models, and documentation are in place; the implementation bodies contain `TODO` comments and `throw NotImplementedError(...)` placeholders.
+```bash
+./gradlew run --console=plain
+```
 
-### What needs to be implemented
+The `--console=plain` flag suppresses Gradle's progress bar, which otherwise appears interleaved with the app's output during interactive use.
 
-| File | What to implement |
-|---|---|
-| `FhirClient.kt` | `searchPatientByName()` and `getMedicationsByPatientId()` using OkHttp |
-| `JsonParser.kt` | `parsePatientBundle()` and `parseMedicationRequestBundle()` using Jackson |
-| `PatientService.kt` | `searchPatients()` — wire client → parser → return list |
-| `MedicationService.kt` | `getMedicationsForPatient()` and `formatMedicationDisplay()` |
-| `Main.kt` | Full CLI flow: prompt, search, select, display medications |
+On Windows, use `.\gradlew run --console=plain`.
+
+---
+
+## Test Patients
+
+The following patients are confirmed to exist on the HAPI FHIR sandbox and have medication records:
+
+| Search term | Patient name | Notes |
+|---|---|---|
+| `ved` | Ved Prakash | Has 1 cancelled medication |
+| `Nunez` | NuÃ±ez Karla | Has 1 cancelled medication |
+
+> These are live records on a public sandbox — they may change or be deleted at any time.
 
 ---
 
@@ -119,8 +133,10 @@ Both endpoints return a **FHIR Bundle** — a JSON wrapper with an `entry[]` arr
 
 ## Future Improvements
 
-- **OAuth 2.0 / SMART on FHIR** — swap HAPI sandbox for an Epic or Cerner sandbox with token-based auth
-- **Pagination** — follow `Bundle.link[rel="next"]` for large result sets
-- **Active-only filter** — add `?status=active` to the MedicationRequest query
-- **Unit tests** — JUnit 5 + MockK, with `FhirClient` injected as a constructor parameter for easy mocking
-- **CLI argument parsing** — accept the patient name directly: `./gradlew run --args="John Doe"`
+See [FUTURE_IMPROVEMENTS.md](FUTURE_IMPROVEMENTS.md) for planned features including:
+
+- OAuth 2.0 / SMART on FHIR authentication
+- Pagination support
+- Medication status filtering
+- CLI argument parsing
+- Unit tests (JUnit 5 + MockK)

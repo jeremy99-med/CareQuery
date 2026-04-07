@@ -28,7 +28,7 @@ object ApiConfig {
      *   so you can switch between HAPI, Epic, and other sandboxes without
      *   recompiling. e.g., System.getenv("FHIR_BASE_URL") ?: DEFAULT_URL
      */
-    const val BASE_URL = "https://hapi.fhir.org/baseR4"
+    const val BASE_URL = "hapi.fhir.org"
 
     /**
      * Request headers sent with every FHIR API call.

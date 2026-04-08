@@ -5,9 +5,12 @@ fhirscope/.kotlin/
 *.class
 *.jar
 
+# ── Node / npm ───────────────────────────────────────────────────────────────
+node_modules/
+package-lock.json
+
 # ── Next.js (fhirscope-web/) ─────────────────────────────────────────────────
 fhirscope-web/.next/
-fhirscope-web/node_modules/
 fhirscope-web/out/
 
 # ── OS / IDE ──────────────────────────────────────────────────────────────────

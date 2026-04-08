@@ -1,64 +1,45 @@
-/**
- * components/MedicationList.tsx — Medication Display Component
- *
- * Renders a list of medication requests for a patient.
- *
- * PROPS:
- *   medications: MedicationRequest[]
- *     The list of medications to display. May be empty.
- *
- * COMPONENT BEHAVIOUR:
- *   - If medications is empty, render a "No medications found" message.
- *   - For each medication, display:
- *       Medication name | Status badge | Prescribed date
- *   - The status should be styled as a badge with a colour indicating severity:
- *       "active"    → green
- *       "completed" → grey
- *       "cancelled" → red
- *       (other)     → yellow / default
- *
- * DATE FORMATTING:
- *   authoredOn may be a full datetime string ("2026-02-12T17:30:36+05:30")
- *   or a date-only string ("2023-10-01"). In both cases, read only the first
- *   10 characters before formatting:
- *     const dateStr = medication.authoredOn?.slice(0, 10) ?? "Unknown"
- *   Then format it for display:
- *     new Date(dateStr).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
- *
- * HINTS:
- *   - This component does not need "use client" — it only renders props.
- *   - Separate the status colour logic into a small helper function to keep
- *     the JSX readable:
- *       function statusColor(status?: string): string { ... }
- *
- * TODO: Import MedicationRequest from @/types/fhir.
- * TODO: Define Props: { medications: MedicationRequest[] }
- * TODO: Render empty state if medications.length === 0.
- * TODO: Map over medications and render a row for each.
- * TODO: Implement status badge with colour based on status value.
- * TODO: Format authoredOn using .slice(0, 10) and toLocaleDateString.
- */
-
 import { MedicationRequest } from "@/types/fhir";
 
 interface Props {
   medications: MedicationRequest[];
 }
 
+interface StatusBadgeProps {
+  status?: string;
+}
+
+// Maps FHIR medication status values to Bootstrap background classes
+function StatusBadge({ status }: StatusBadgeProps) {
+  let color = "bg-warning";
+  switch (status) {
+    case "active":    color = "bg-success";   break;
+    case "completed": color = "bg-secondary"; break;
+    case "cancelled": color = "bg-danger";    break;
+  }
+  return <span className={`badge ${color}`}>{status}</span>;
+}
+
 export default function MedicationList({ medications }: Props) {
-  // TODO: Replace placeholder with real implementation
   if (medications.length === 0) {
     return <p>No medications found.</p>;
   }
 
   return (
     <ul>
-      {medications.map((med) => (
-        <li key={med.id}>
-          {/* TODO: Add status badge with colour */}
-          {med.medicationName} — [{med.status}] — {med.authoredOn?.slice(0, 10) ?? "Unknown"}
-        </li>
-      ))}
+      {medications.map((med) => {
+        // authoredOn can be a full datetime or date-only string; slice to YYYY-MM-DD before parsing
+        const dateStr = med.authoredOn?.slice(0, 10) ?? "Unknown";
+        const formattedDate = dateStr !== "Unknown"
+          ? new Date(dateStr).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+          : "Unknown";
+
+        return (
+          <li key={med.id}>
+            <StatusBadge status={med.status} />
+            {" "}{med.medicationName} — {formattedDate}
+          </li>
+        );
+      })}
     </ul>
   );
 }

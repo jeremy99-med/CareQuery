@@ -1,0 +1,26 @@
+{
+  "name": "carequery",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently --names \"backend,frontend\" --prefix-colors \"cyan,magenta\" \"npm run backend\" \"npm run frontend\"",
+    "backend": "cd fhirscope && gradlew.bat run",
+    "frontend": "cd fhirscope-web && npm run dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeremy99-med/CareQuery.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/jeremy99-med/CareQuery/issues"
+  },
+  "homepage": "https://github.com/jeremy99-med/CareQuery#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

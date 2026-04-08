@@ -4,26 +4,14 @@ import com.fhirscope.config.ApiConfig
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 
 class FhirClient {
 
     private val httpClient = OkHttpClient()
 
-    /**
-     * searchPatientByName
-     *
-     * Searches the FHIR server for patients whose name matches the given string.
-     *
-     * ENDPOINT:
-     *   GET https://hapi.fhir.org/baseR4/Patient?name={name}
-     *
-     * NOTE: The HAPI FHIR sandbox does not reliably match across both given and
-     * family name when combined (e.g., "Ved Prakash"). Search by a single name
-     * token (first or last name only) for best results.
-     *
-     * @param name The patient name to search for (partial match supported)
-     * @return Raw JSON string of the FHIR Bundle response, or null on error
-     */
+    // GET /baseR4/Patient?name={name}&_count=10
     fun searchPatientByName(name: String): String? {
         val url = HttpUrl.Builder()
             .scheme("https")
@@ -33,31 +21,10 @@ class FhirClient {
             .addQueryParameter("_count", ApiConfig.DEFAULT_PAGE_SIZE.toString())
             .build()
 
-        val request = Request.Builder()
-            .url(url)
-            .addHeader("Accept", ApiConfig.ACCEPT_HEADER)
-            .build()
-
-        httpClient.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) {
-                println("Error: ${response.code}")
-                return null
-            }
-            return response.body?.string()
-        }
+        return execute(url)
     }
 
-    /**
-     * getMedicationsByPatientId
-     *
-     * Retrieves all MedicationRequest resources associated with a given patient ID.
-     *
-     * ENDPOINT:
-     *   GET https://hapi.fhir.org/baseR4/MedicationRequest?patient={patientId}
-     *
-     * @param patientId The logical FHIR Patient ID (from Patient.id)
-     * @return Raw JSON string of the FHIR Bundle response, or null on error
-     */
+    // GET /baseR4/MedicationRequest?patient={patientId}&_count=10
     fun getMedicationsByPatientId(patientId: String): String? {
         val url = HttpUrl.Builder()
             .scheme("https")
@@ -67,6 +34,32 @@ class FhirClient {
             .addQueryParameter("_count", ApiConfig.DEFAULT_PAGE_SIZE.toString())
             .build()
 
+        return execute(url)
+    }
+
+    // POST /baseR4/MedicationRequest with JSON body (not implemented yet)
+    fun postMedicationRequest(body: String): String? {
+        val url = HttpUrl.Builder()
+            .scheme("https")
+            .host(ApiConfig.BASE_URL)
+            .addPathSegments("baseR4/MedicationRequest")
+            .build()
+
+        val requestBody = body.toRequestBody("application/fhir+json".toMediaType())
+        val request = Request.Builder()
+            .url(url)
+            .post(requestBody)
+            .addHeader("Accept", ApiConfig.ACCEPT_HEADER)
+            .build()
+
+        httpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) return null
+            return response.body?.string()
+        }
+    }
+
+
+    private fun execute(url: okhttp3.HttpUrl): String? {
         val request = Request.Builder()
             .url(url)
             .addHeader("Accept", ApiConfig.ACCEPT_HEADER)

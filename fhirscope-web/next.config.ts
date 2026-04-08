@@ -21,6 +21,18 @@ import type { NextConfig } from "next";
  *   This means frontend code calls /api/fhir/patients?name=John and Next.js
  *   transparently forwards it to the Kotlin server — no CORS headers needed.
  */
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+  turbopack: {
+    root: __dirname,
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/api/fhir/:path*",
+        destination: "http://localhost:8080/:path*",
+      },
+    ];
+  },
+};
 
 export default nextConfig;

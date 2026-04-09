@@ -1,6 +1,6 @@
 # CareQuery — FHIRScope
 
-A full-stack patient medication viewer powered by the FHIR R4 standard. Search for patients by name and view their full medication history, pulled live from the HAPI FHIR public sandbox.
+A full-stack patient medication viewer powered by the FHIR R4 standard. Search for patients by name, view their full medication history, and add new medications — all backed by the HAPI FHIR public sandbox. Drug name autocomplete is provided by the NLM RxNorm API.
 
 ---
 
@@ -63,19 +63,21 @@ CareQuery/
 │   │   └── util/
 │   │       └── JsonParser.kt           # FHIR Bundle JSON → data classes
 │   ├── build.gradle.kts
-│   ├── gradlew / gradlew.bat
-│   └── FUTURE_IMPROVEMENTS.md
+│   └── gradlew / gradlew.bat
 │
 ├── fhirscope-web/                      # Next.js frontend
 │   ├── app/
-│   │   ├── layout.tsx                  # Root layout — Bootstrap import, global styles
+│   │   ├── globals.css                 # Global styles
+│   │   ├── layout.tsx                  # Root layout — Bootstrap import, Toaster
 │   │   ├── page.tsx                    # Home page — patient search
 │   │   └── patient/[id]/
-│   │       └── page.tsx                # Dynamic route — patient medications
+│   │       └── page.tsx                # Dynamic route — patient medications + add modal
 │   ├── components/
 │   │   ├── PatientSearch.tsx           # Controlled search input + submit
 │   │   ├── PatientList.tsx             # Search results list with navigation links
-│   │   └── MedicationList.tsx          # Medication rows with status badges
+│   │   ├── MedicationList.tsx          # Medication rows with status badges
+│   │   ├── MedicationSearch.tsx        # RxNorm autocomplete input
+│   │   └── ToasterProvider.tsx         # react-hot-toast notification wrapper
 │   ├── lib/
 │   │   └── api.ts                      # All frontend HTTP calls (single source of truth)
 │   ├── types/
@@ -83,6 +85,7 @@ CareQuery/
 │   ├── next.config.ts                  # Turbopack root + /api/fhir proxy rewrite
 │   └── package.json
 │
+├── FUTURE_IMPROVEMENTS.md              # Planned enhancements
 ├── package.json                        # Root — concurrently dev script
 ├── start.bat                           # Windows double-click launcher
 ├── .gitignore
@@ -104,6 +107,7 @@ CareQuery/
 | Backend | Jackson | JSON parsing and serialization |
 | Build | Gradle (Kotlin DSL) | Kotlin build toolchain |
 | Build | npm + concurrently | Running both processes together |
+| External API | NLM RxNav (RxNorm) | Drug name autocomplete when adding medications |
 
 ---
 
@@ -177,7 +181,7 @@ Requests include the header `Accept: application/fhir+json`.
 
 ## Backend HTTP API
 
-The Kotlin server exposes two endpoints on `http://localhost:8080`:
+The Kotlin server exposes three endpoints on `http://localhost:8080`:
 
 ### `GET /patients?name={query}`
 
@@ -212,6 +216,29 @@ Returns all medication requests for a patient, sorted most recent first.
     "patientReference": "Patient/131264020"
   }
 ]
+```
+
+### `POST /patients/{id}/medications`
+
+Creates a new `MedicationRequest` on the HAPI FHIR sandbox for the given patient. Returns the created resource (`201 Created`) or an error message (`500`).
+
+**Request body:**
+```json
+{
+  "medicationName": "Atorvastatin 20 MG Oral Tablet",
+  "rxNormCode": "617312",
+  "status": "active"
+}
+```
+
+- `rxNormCode` is optional. If provided it is included as a FHIR `coding` entry under `medicationCodeableConcept`.
+- `status` must be one of: `active`, `completed`, `cancelled`.
+
+**Example:**
+```bash
+curl -X POST http://localhost:8080/patients/131264020/medications \
+  -H "Content-Type: application/json" \
+  -d '{"medicationName":"Lisinopril 10 MG","rxNormCode":"29046","status":"active"}'
 ```
 
 ---
@@ -261,7 +288,8 @@ There are currently no automated tests. Manual testing can be done using the fol
 | Ved Prakash | `Ved` | `131264020` |
 | Núñez Karla | `Núñez` | `90629914` |
 
-**Manual test flow:**
+### View medications (read flow)
+
 1. Start the app with `npm run dev`
 2. Wait for `Starting FHIRScope HTTP server on http://localhost:8080`
 3. Open http://localhost:3000
@@ -269,10 +297,31 @@ There are currently no automated tests. Manual testing can be done using the fol
 5. Click the patient row — confirm medications load on the `/patient/[id]` page
 6. Click `← Back to search` — confirm navigation returns to home
 
+### Add a medication (write flow)
+
+1. Open any patient's medication page (e.g., search `Ved`, click the result)
+2. Click **+ Add Medication** (top-right of the page)
+3. In the modal, type a drug name in the search box (e.g., `Lisinopril`)
+   - A dropdown appears with RxNorm-matched drug names (sourced live from the NLM RxNav API)
+4. Click a drug from the dropdown — the selected name and RxNorm code are shown below the input
+5. Choose a status from the dropdown (`Active`, `Completed`, or `Cancelled`)
+6. Click **Save**
+   - A green toast notification confirms `Medication added!`
+   - The medication list refreshes and the new entry appears at the top
+7. Click **Cancel** to dismiss without saving
+
 **Backend endpoints can also be tested directly:**
 ```bash
-curl http://localhost:8080/patients?name=Ved
-curl http://localhost:8080/patients/131264020/medications
+# Search patients
+curl "http://localhost:8080/patients?name=Ved"
+
+# Get medications
+curl "http://localhost:8080/patients/131264020/medications"
+
+# Add a medication
+curl -X POST "http://localhost:8080/patients/131264020/medications" \
+  -H "Content-Type: application/json" \
+  -d '{"medicationName":"Lisinopril 10 MG","rxNormCode":"29046","status":"active"}'
 ```
 
 ---

@@ -7,6 +7,8 @@ import { searchPatients } from "@/lib/api";
 import { Patient } from "@/types/fhir";
 
 export default function HomePage() {
+  // State lives here (not inside PatientSearch) so both PatientSearch and
+  // PatientList can read the same result without prop-drilling or a context.
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,13 +27,18 @@ export default function HomePage() {
   }
 
   return (
-    <div className="container mt-4">
-      <h1>CareQuery</h1>
-      <p className="text-muted">Find a patient&apos;s medication history</p>
-      <PatientSearch onSearch={handleSearch} loading={loading} />
-      {error && <p className="text-danger">{error}</p>}
-      {loading && <p>Searching...</p>}
-      <PatientList patients={patients} />
-    </div>
+    <>
+      <div className="hero">
+        <h1 className="hero-title">CareQuery</h1>
+        <p className="hero-subtitle">Find a patient&apos;s medication history</p>
+        <PatientSearch onSearch={handleSearch} loading={loading} />
+      </div>
+
+      <div className="results-section">
+        {error && <p className="text-danger">{error}</p>}
+        {loading && <p className="text-center text-muted">Searching...</p>}
+        <PatientList patients={patients} />
+      </div>
+    </>
   );
 }

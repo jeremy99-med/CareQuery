@@ -10,6 +10,8 @@ import toast from "react-hot-toast";
 
 export default function PatientPage() {
   const { id } = useParams() as { id: string };
+  // name is passed as a query param by PatientList so we can display it
+  // immediately without a second patient-lookup API call.
   const name = useSearchParams().get("name") ?? id;
   const [medications, setMedications] = useState<MedicationRequest[]>([]);
   const [loading, setLoading] = useState(false);
@@ -22,6 +24,8 @@ export default function PatientPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // Extracted from useEffect so handleAddMedication can call it to refresh
+  // the list after a successful POST without duplicating the fetch logic.
   function fetchMedications() {
     setLoading(true);
     setError(null);
@@ -54,21 +58,24 @@ export default function PatientPage() {
   }
 
   return (
-    <div className="container mt-4">
-      <a href="/">← Back to search</a>
-
-      <div className="d-flex justify-content-between align-items-center mt-2">
-        <h1>Medications for {name}</h1>
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+    <>
+      <div className="page-header d-flex justify-content-between align-items-center">
+        <div>
+          <a href="/" className="back-link">← Back to search</a>
+          <h1>Medications for {name}</h1>
+        </div>
+        <button className="btn-add" onClick={() => setShowModal(true)}>
           + Add Medication
         </button>
       </div>
 
-      {loading && <p>Loading medications...</p>}
-      {error && <p className="text-danger">{error}</p>}
-      {!loading && !error && <MedicationList medications={medications} />}
+      <div className="results-section">
+        {loading && <p className="text-center text-muted">Loading medications...</p>}
+        {error && <p className="text-danger">{error}</p>}
+        {!loading && !error && <MedicationList medications={medications} />}
+      </div>
 
-      {/* Add Medication Modal */}
+      
       {showModal && (
         <div className="modal d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
           <div className="modal-dialog">
@@ -117,6 +124,6 @@ export default function PatientPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

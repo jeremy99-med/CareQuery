@@ -16,18 +16,20 @@ export default function PatientSearch({ onSearch, loading }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col items-start gap-2">
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder="Search patients..."
-      />
-      <button type="submit" disabled={loading || !value.trim()}>
-        {loading ? "Searching..." : "Search"}
-      </button>
+    <form onSubmit={handleSubmit}>
+      <div className="search-bar">
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Search by first or last name..."
+        />
+        <button type="submit" disabled={loading || !value.trim()}>
+          {loading ? "Searching..." : "Search"}
+        </button>
+      </div>
       {/* The HAPI FHIR sandbox matches single name tokens more reliably than full names */}
-      <p>Tip: search by first or last name only (e.g. &apos;Ved&apos; not &apos;Ved Prakash&apos;)</p>
+      <p className="search-tip">Tip: search by first or last name only (e.g. &apos;Ved&apos; not &apos;Ved Prakash&apos;)</p>
     </form>
   );
 }

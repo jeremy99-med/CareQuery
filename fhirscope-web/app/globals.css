@@ -1,4 +1,197 @@
-/* Import Bootstrap */
 @import "bootstrap/dist/css/bootstrap.min.css";
 
-/* FHIRScope custom styles */
+/* ── Design Tokens ───────────────────────────────────────────────────────────
+   60% --color-primary   #F34C39  (dominant — hero, navbar, primary buttons)
+   30% --color-secondary #F3A939  (supporting — cards, inputs, hover states)
+   10% --color-accent    #E0F339  (highlight — CTAs, active badges, links)
+──────────────────────────────────────────────────────────────────────────── */
+:root {
+  --color-primary:   #F34C39;
+  --color-secondary: #F3A939;
+  --color-accent:    #E0F339;
+  --color-dark:      #1a1a1a;
+  --color-light:     #fafafa;
+  --color-muted:     #6b7280;
+}
+
+/* ── Base ────────────────────────────────────────────────────────────────── */
+body {
+  background-color: #e4d7c8;
+  color: var(--color-dark);
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+/* ── Hero ────────────────────────────────────────────────────────────────── */
+.hero {
+  background-color: var(--color-primary);
+  color: #fff;
+  padding: 4rem 1.5rem 3rem;
+  text-align: center;
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  opacity: 0.85;
+  margin-bottom: 2rem;
+}
+
+/* ── Search bar ──────────────────────────────────────────────────────────── */
+.search-bar {
+  display: flex;
+  gap: 0.5rem;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.search-bar input {
+  flex: 1;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.65rem 1rem;
+  font-size: 1rem;
+  outline: none;
+  box-shadow: 0 0 0 2px transparent;
+  transition: box-shadow 0.2s;
+}
+
+.search-bar input:focus {
+  box-shadow: 0 0 0 3px var(--color-accent);
+}
+
+.search-bar button {
+  background-color: var(--color-accent);
+  color: var(--color-dark);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.65rem 1.4rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.search-bar button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.search-tip {
+  font-size: 0.8rem;
+  opacity: 0.75;
+  margin-top: 0.75rem;
+}
+
+/* ── Patient results ─────────────────────────────────────────────────────── */
+.results-section {
+  max-width: 680px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.patient-card {
+  display: block;
+  background: #fff;
+  border-left: 4px solid var(--color-secondary);
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  text-decoration: none;
+  color: var(--color-dark);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.patient-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 3px 10px rgba(243,76,57,0.15);
+  color: var(--color-dark);
+}
+
+.patient-name {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.patient-meta {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  margin-top: 0.2rem;
+}
+
+/* ── Patient page header ─────────────────────────────────────────────────── */
+.page-header {
+  background-color: var(--color-primary);
+  color: #fff;
+  padding: 1.5rem;
+}
+
+.back-link {
+  color: var(--color-accent);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.back-link:hover {
+  color: #fff;
+}
+
+.page-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0.5rem 0 0;
+}
+
+/* ── Add Medication button ───────────────────────────────────────────────── */
+.btn-add {
+  background-color: var(--color-accent);
+  color: var(--color-dark);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn-add:hover {
+  opacity: 0.85;
+}
+
+/* ── Medication cards ────────────────────────────────────────────────────── */
+.medication-list {
+  max-width: 680px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  list-style: none;
+}
+
+.medication-card {
+  background: #fff;
+  border-left: 4px solid var(--color-secondary);
+  border-radius: 0.5rem;
+  padding: 0.9rem 1.25rem;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.medication-name {
+  font-weight: 600;
+  flex: 1;
+}
+
+.medication-date {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+/* ── Additional styles go below ──────────────────────────────────────────── */

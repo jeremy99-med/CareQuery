@@ -21,11 +21,11 @@ function StatusBadge({ status }: StatusBadgeProps) {
 
 export default function MedicationList({ medications }: Props) {
   if (medications.length === 0) {
-    return <p>No medications found.</p>;
+    return <p className="text-muted text-center mt-4">No medications found.</p>;
   }
 
   return (
-    <ul>
+    <ul className="medication-list">
       {medications.map((med) => {
         // authoredOn can be a full datetime or date-only string; slice to YYYY-MM-DD before parsing
         const dateStr = med.authoredOn?.slice(0, 10) ?? "Unknown";
@@ -34,9 +34,10 @@ export default function MedicationList({ medications }: Props) {
           : "Unknown";
 
         return (
-          <li key={med.id}>
+          <li key={med.id} className="medication-card">
             <StatusBadge status={med.status} />
-            {" "}{med.medicationName} — {formattedDate}
+            <span className="medication-name">{med.medicationName}</span>
+            <span className="medication-date">{formattedDate}</span>
           </li>
         );
       })}

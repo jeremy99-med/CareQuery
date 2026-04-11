@@ -7,18 +7,25 @@ interface Props {
 
 export default function PatientList({ patients }: Props) {
   if (patients.length === 0) {
-    return <p>No patients found.</p>;
+    return null;
   }
 
   return (
-    <ul>
+    <div>
       {patients.map((patient) => (
-        <li key={patient.id}>
-          <Link href={`/patient/${patient.id}?name=${encodeURIComponent(patient.fullName)}`}>
-            {patient.fullName} — {patient.birthDate ?? "Unknown"} — {patient.gender}
-          </Link>
-        </li>
+        <Link
+          key={patient.id}
+          // Append ?name= so the patient detail page can show the name
+          // instantly without fetching the patient record a second time.
+          href={`/patient/${patient.id}?name=${encodeURIComponent(patient.fullName)}`}
+          className="patient-card"
+        >
+          <div className="patient-name">{patient.fullName}</div>
+          <div className="patient-meta">
+            {patient.birthDate ?? "Unknown DOB"} &nbsp;·&nbsp; {patient.gender ?? "Unknown gender"}
+          </div>
+        </Link>
       ))}
-    </ul>
+    </div>
   );
 }

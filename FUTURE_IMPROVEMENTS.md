@@ -100,18 +100,6 @@ Add a persistent `<nav>` in `app/layout.tsx` with the FHIRScope logo/title and a
 
 ---
 
-### Patient Name in Medication Page Heading
-
-Pass the patient's name as a URL query param when navigating from the search results:
-
-```tsx
-href={`/patient/${patient.id}?name=${encodeURIComponent(patient.fullName)}`}
-```
-
-Then read it in the medications page via `useSearchParams()` and display it in the `<h1>` instead of the raw patient ID.
-
----
-
 ### Medication Status Filtering in the UI
 
 Add a dropdown or tab bar on the medications page to filter by status (active, completed, cancelled). Can be done client-side against the already-fetched list, or passed as a query parameter to the backend.
